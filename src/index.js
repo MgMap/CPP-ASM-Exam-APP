@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, ipcMain } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 
 let mainWindow;
@@ -42,6 +42,22 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  // Alert when the user tries to close the app
+  mainWindow.on('close', (event) => {
+  event.preventDefault(); // Prevent the window from closing
+  dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    message: 'Are you sure you want to exit the exam?',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    cancelId: 1
+  }).then((response) => {
+    if (response.response === 0) {
+      // User clicked 'Yes', close the window
+      mainWindow.destroy();
+    }
+  });
+});
   // Create and attach the canvas BrowserView
   createCanvasView();
 
@@ -73,6 +89,7 @@ const createWindow = () => {
   // Optional: Open DevTools for debugging
   //browserView.webContents.openDevTools();
 };
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
