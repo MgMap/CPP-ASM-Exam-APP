@@ -22,14 +22,14 @@ function(check_file_hash has_hash hash_is_good)
   set("${has_hash}" TRUE PARENT_SCOPE)
 
   message(STATUS "verifying file...
-       file='/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'")
+       file='C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'")
 
-  file("" "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip" actual_value)
+  file("" "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip" actual_value)
 
   if(NOT "${actual_value}" STREQUAL "")
     set("${hash_is_good}" FALSE PARENT_SCOPE)
     message(STATUS " hash of
-    /Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+    C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
   does not match expected value
     expected: ''
       actual: '${actual_value}'")
@@ -71,40 +71,32 @@ function(sleep_before_download attempt)
   execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep "${sleep_seconds}")
 endfunction()
 
-if("/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip" STREQUAL "")
-  message(FATAL_ERROR "LOCAL can't be empty")
-endif()
-
-if("https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip" STREQUAL "")
-  message(FATAL_ERROR "REMOTE can't be empty")
-endif()
-
-if(EXISTS "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
+if(EXISTS "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
   check_file_hash(has_hash hash_is_good)
   if(has_hash)
     if(hash_is_good)
       message(STATUS "File already exists and hash match (skip download):
-  file='/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'
+  file='C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'
   =''"
       )
       return()
     else()
       message(STATUS "File already exists but hash mismatch. Removing...")
-      file(REMOVE "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
+      file(REMOVE "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
     endif()
   else()
     message(STATUS "File already exists but no hash specified (use URL_HASH):
-  file='/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'
+  file='C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'
 Old file will be removed and new file downloaded from URL."
     )
-    file(REMOVE "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
+    file(REMOVE "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
   endif()
 endif()
 
 set(retry_number 5)
 
 message(STATUS "Downloading...
-   dst='/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'
+   dst='C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip'
    timeout='none'
    inactivity timeout='none'"
 )
@@ -115,7 +107,7 @@ foreach(i RANGE ${retry_number})
   if(status_code IN_LIST download_retry_codes)
     sleep_before_download(${i})
   endif()
-  foreach(url https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip)
+  foreach(url IN ITEMS [====[https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip]====])
     if(NOT url IN_LIST skip_url_list)
       message(STATUS "Using src='${url}'")
 
@@ -126,7 +118,7 @@ foreach(i RANGE ${retry_number})
 
       file(
         DOWNLOAD
-        "${url}" "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"
+        "${url}" "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"
         SHOW_PROGRESS
         # no TIMEOUT
         # no INACTIVITY_TIMEOUT
@@ -143,7 +135,7 @@ foreach(i RANGE ${retry_number})
         check_file_hash(has_hash hash_is_good)
         if(has_hash AND NOT hash_is_good)
           message(STATUS "Hash mismatch, removing...")
-          file(REMOVE "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
+          file(REMOVE "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip")
         else()
           message(STATUS "Downloading... done")
           return()

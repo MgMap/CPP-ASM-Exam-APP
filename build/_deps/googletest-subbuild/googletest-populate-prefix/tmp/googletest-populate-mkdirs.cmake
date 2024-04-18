@@ -4,19 +4,19 @@
 cmake_minimum_required(VERSION 3.5)
 
 file(MAKE_DIRECTORY
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-src"
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-build"
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix"
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/tmp"
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp"
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src"
-  "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-src"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-build"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/tmp"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src"
+  "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/${subDir}")
+    file(MAKE_DIRECTORY "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "/Users/linnkhantthuya/Documents/CS_Projects/exam-grader/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "C:/Users/minau/Documents/Barkeshili_ExamAPP/examApp/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp${cfgdir}") # cfgdir has leading slash
 endif()
