@@ -1,7 +1,36 @@
 const {compileCpp} = require('./compile')
-//const {initializeEditor} = require('./codeEditor')
-//const CodeMirror = require('codemirror');
-//require('codemirror/mode/clike/clike'); // Import the C/C++ mode
+const { ipcRenderer } = require('electron');
+
+const btnCanvas = document.getElementById("btnCanvas");
+const btnTextEditor = document.getElementById("btnTextEditor");
+
+btnCanvas.addEventListener('click', () => {
+    
+    // Send an IPC message to the main process to display the Canvas window
+    ipcRenderer.send('show-canvas');
+});
+
+btnTextEditor.addEventListener('click', () => {
+    // Send an IPC message to the main process to display the Text Editor window
+    ipcRenderer.send('show-text-editor');
+});
+
+// Handle IPC messages from the main process
+ipcRenderer.on('show-canvas', (event, arg) => {
+    // Show the Canvas window and hide the Text Editor window
+    
+    console.log("render receives show-canvas")
+    console.log("the argument is", arg)
+
+    //document.getElementById("canvasWindow").style.display = "block";
+    //document.getElementById("textEditorWindow").style.display = "none";
+});
+
+ipcRenderer.on('show-text-editor', () => {
+    // Show the Text Editor window and hide the Canvas window
+    document.getElementById("canvasWindow").style.display = "none";
+    document.getElementById("textEditorWindow").style.display = "block";
+});
 
 let editor = document.querySelector("#editor");
 
