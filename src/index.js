@@ -3,7 +3,8 @@ const path = require('node:path');
 
 let mainWindow;
 let canvasView;
-
+let blurTimer;
+let notificationShown = false;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -32,6 +33,7 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
+    koisk: true, //comment this out if it is too annoying
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -44,6 +46,7 @@ const createWindow = () => {
 
   // Alert when the user tries to close the app
   mainWindow.on('close', (event) => {
+    notificationShown = true;
   event.preventDefault(); // Prevent the window from closing
   dialog.showMessageBox(mainWindow, {
     type: 'warning',
@@ -57,6 +60,24 @@ const createWindow = () => {
       mainWindow.destroy();
     }
   });
+});
+
+mainWindow.on('blur', (event) => {
+
+  if(!notificationShown)
+  {
+  blurTimer = setTimeout(() => {
+    showDialog('Don\'t go to other apps, Son I know. Don\'t cheat');
+  }, 500);
+}
+  notificationShown = true;
+});
+
+// Track when the app gains focus
+mainWindow.on('focus', () => {
+  // User returned to the app
+  clearTimeout(blurTimer);
+  notificationShown = false;
 });
   // Create and attach the canvas BrowserView
   createCanvasView();
@@ -122,5 +143,13 @@ app.on('window-all-closed', () => {
   }
 });
 
+// Function to display notifications using Electron's dialog module
+function showDialog(message) {
+  dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    message: message,
+    buttons: ['OK']
+  });
+}
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
