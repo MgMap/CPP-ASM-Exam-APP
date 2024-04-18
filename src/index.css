@@ -31,3 +31,9 @@ body {
   width: auto;
   margin-left: 40px;
 }
+
+#timer {
+  font-size: 24px;
+  font-weight: 20;
+  margin-left: 20px;
+}
