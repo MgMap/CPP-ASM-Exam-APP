@@ -1,143 +1,144 @@
+const {compileCpp} = require('./compile')
+//const {initializeEditor} = require('./codeEditor')
+//const CodeMirror = require('codemirror');
+//require('codemirror/mode/clike/clike'); // Import the C/C++ mode
 
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+let editor = document.querySelector("#editor");
+
+editor = ace.edit(editor, {
+  theme: "ace/theme/cobalt",
+  mode: "ace/mode/c_cpp",
+});
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+    try {
+        // Fetch the content of basic_test.cpp
+        const response = await fetch('../includes/poly/poly.cpp');
+        if (!response.ok) {
+            throw new Error('Failed to fetch poly.cpp');
+        }
+        const polyCode = await response.text();
+
+        //console.log(basicTestCppCode);
+        // Set the content of the Ace editor to the fetched code
+        editor.setValue(polyCode);
+        // Move the cursor to the beginning of the document
+        editor.moveCursorToPosition({ row: 0, column: 0 });
+    } catch (error) {
+        console.error(error);
+        // Handle errors, such as displaying an error message to the user
+    }
+})
+
+const btnBasicTest = document.getElementById("btnBasicTest")
+btnBasicTest.addEventListener('click', async () => {
+    try {
+        // Fetch the content of basic_test.cpp
+        const response = await fetch('../_tests/_test_files/basic_test.cpp');
+        if (!response.ok) {
+            throw new Error('Failed to fetch basic_test.cpp');
+        }
+        const basicTestCppCode = await response.text();
+
+        //console.log(basicTestCppCode);
+        // Set the content of the Ace editor to the fetched code
+        editor.setValue(basicTestCppCode);
+        // Move the cursor to the beginning of the document
+        editor.moveCursorToPosition({ row: 0, column: 0 });
+    } catch (error) {
+        console.error(error);
+        // Handle errors, such as displaying an error message to the user
+    }
+});
+
+const btnTestB = document.getElementById("btnTestB")
+btnTestB.addEventListener('click', async () => {
+    try {
+        // Fetch the content of basic_test.cpp
+        const response = await fetch('../_tests/_test_files/testB.cpp');
+        if (!response.ok) {
+            throw new Error('Failed to fetch testB.cpp');
+        }
+        const testBCode = await response.text();
+
+        //console.log(testBCode);
+        // Set the content of the Ace editor to the fetched code
+        editor.setValue(testBCode);
+        // Move the cursor to the beginning of the document
+        editor.moveCursorToPosition({ row: 0, column: 0 });
+    } catch (error) {
+        console.error(error);
+        // Handle errors, such as displaying an error message to the user
+    }
+});
+
+const btnPoly = document.getElementById("btnPoly")
+btnPoly.addEventListener('click', async () => {
+    try {
+        // Fetch the content of basic_test.cpp
+        const response = await fetch('../includes/poly/poly.cpp');
+        if (!response.ok) {
+            throw new Error('Failed to fetch poly.cpp');
+        }
+        const testBCode = await response.text();
+
+        //console.log(testBCode);
+        // Set the content of the Ace editor to the fetched code
+        editor.setValue(testBCode);
+        // Move the cursor to the beginning of the document
+        editor.moveCursorToPosition({ row: 0, column: 0 });
+    } catch (error) {
+        console.error(error);
+        // Handle errors, such as displaying an error message to the user
+    }
+});
 
 const submitBtn = document.getElementById("submitBtn")
 submitBtn.addEventListener('click', () => {
 
     // Get the code from the textarea
-    const code = document.getElementById('codeInput').value;
+    const code = editor.getValue();
     console.log("code is", code);
     // Only proceed if there is code to compile and run
     if (code.trim() !== '') {
-        compileCpp(code);
+        compileCpp(code, "main");
     } else {
         alert('Please enter some code before submitting.');
     }
 });
 
-function compileCpp(code) {
-    
 
+const runBasicTest = document.getElementById("runBasicTest")
+runBasicTest.addEventListener('click', () => {
 
-    // Save the code to a temporary file
-    fs.writeFileSync('includes/temp.cpp', code);
+    // Get the code from the textarea
+    const code = editor.getValue();
+    console.log("code is", code);
+    // Only proceed if there is code to compile and run
+    if (code.trim() !== '') {
+        compileCpp(code, "basic_test");
+    } else {
+        alert('Please enter some code before submitting.');
+    }
+});
 
-    // Execute compilation process using provided CMakeLists.txt and gcc
-    const cmake = spawn('cmake', ['.']);
+const runTestB = document.getElementById("runTestB")
+runTestB.addEventListener('click', () => {
 
-    cmake.stdout.on('data', (data) => {
-        console.log(`cmake stdout: ${data}`);
-    });
-
-    cmake.stderr.on('data', (data) => {
-        console.error(`cmake stderr: ${data}`);
-    });
-
-    cmake.on('close', (code) => {
-
-        if (code === 0) {
-            console.log('CMake configuration successful! Now trying to run the build');
-        
-
-         // Execute build process
-         const parentDir = __dirname;
-         const pathResolved = path.resolve(__dirname, "..");
-         console.log(pathResolved);
-         const make = spawn('make', [], { cwd: pathResolved }); //  we're using Make
-         make.stdout.on('data', (data) => {
-             console.log(`make stdout: ${data}`);
-         });
-         make.stderr.on('data', (data) => {
-             console.error(`make stderr: ${data}`);
-         });
-         make.on('close', (code) => {
-            //
-            let output = '';
-
-            // Execute the compiled program
-            const compiledProgram = spawn(path.join(__dirname, '..', 'bin', 'temp'), [], {
-                stdio: 'pipe' // Ensure we can capture the output
-            });
-
-            
-            compiledProgram.stdout.on('data', (data) => {
-                console.log(`Program output: ${data}`);
-                output += data.toString();
-
-            });
-            compiledProgram.stderr.on('data', (data) => {
-                console.error(`Program error: ${data}`);
-                
-            });
-            compiledProgram.on('close', (code) => {
-                console.log(`Program exited with code ${code}`);
-                // Display the program output in the HTML element
-                console.log("program output is", output);
-                document.getElementById('codeOutput').innerText = output;
-            });
-         })
-
-            
-            
-
-
-        } else {
-            console.error(`CMake configuration failed with code ${code}`);
-        }
-    });
-
-    console.log("end of function compileCpp")
-}
-
-
+    // Get the code from the textarea
+    const code = editor.getValue();
+    console.log("code is", code);
+    // Only proceed if there is code to compile and run
+    if (code.trim() !== '') {
+        compileCpp(code, "testB");
+    } else {
+        alert('Please enter some code before submitting.');
+    }
+});
 
 /*
-// Function to compile C++ code
-function compileCpp(code) {
-    // Save the code to a temporary file
-    fs.writeFileSync('temp.cpp', code);
+// Call the initializeEditor function when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initializeEditor();
+  });*/
 
-    // Execute compilation process using provided CMakeLists.txt and gcc
-    const cmake = spawn('cmake', ['.']);
-    cmake.stdout.on('data', (data) => {
-        console.log(`cmake stdout: ${data}`);
-    });
-
-    cmake.stderr.on('data', (data) => {
-        console.error(`cmake stderr: ${data}`);
-    });
-
-    cmake.on('close', (code) => {
-        if (code === 0) {
-            console.log('CMake configuration successful!');
-            const make = spawn('make');
-            make.stdout.on('data', (data) => {
-                console.log(`make stdout: ${data}`);
-            });
-            make.stderr.on('data', (data) => {
-                console.error(`make stderr: ${data}`);
-            });
-            make.on('close', (code) => {
-                if (code === 0) {
-                    console.log('Compilation successful!');
-                    // Run the compiled executable if needed
-                    const runProcess = spawn('./output');
-                    runProcess.stdout.on('data', (data) => {
-                        console.log(`Program output: ${data}`);
-                    });
-                } else {
-                    console.error(`Compilation failed with code ${code}`);
-                }
-            });
-        } else {
-            console.error(`CMake configuration failed with code ${code}`);
-        }
-    });
-}
-
-// Example usage
-const code = `#include <iostream>\nint main() {\nstd::cout << "Hello, world!";\nreturn 0;\n}`;
-compileCpp(code);
-*/
