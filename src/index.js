@@ -38,7 +38,8 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
-    kiosk: true, //comment this out if it is too annoying
+    alwaysOnTop: true,
+    kiosk: false, //comment this out if it is too annoying
     resizable: true,
     webPreferences: {
       nodeIntegration: true,
@@ -77,6 +78,7 @@ const createWindow = () => {
     }, 500);
   }
     notificationShown = true;
+    
   });
 
   // Track when the app gains focus
@@ -157,6 +159,12 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+// second helper to prevent the app from loosing focus
+app.on('browser-window-blur', (event, bw) => {
+  bw.restore()
+  bw.focus()
+})
 
 // Function to display notifications using Electron's dialog module
 function showDialog(message) {
