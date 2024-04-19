@@ -38,7 +38,8 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
-    koisk: true, //comment this out if it is too annoying
+    kiosk: true, //comment this out if it is too annoying
+    resizable: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -99,6 +100,25 @@ const createWindow = () => {
       // Logic to show the Text Editor window
       canvasView.setBounds({ x: 0, y: 0, width: 1, height: 1 });
   });
+
+  // Alert when the user tries to exit the app
+  ipcMain.on('exit-app', (event) => {
+    notificationShown = true;
+    event.preventDefault(); // Prevent the window from closing
+    dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      message: 'Are you sure you want to exit the exam?',
+      buttons: ['Yes', 'No'],
+      defaultId: 1,
+      cancelId: 1
+  }).then((response) => {
+      if (response.response === 0) {
+        // User clicked 'Yes', close the window
+        mainWindow.destroy();
+      }
+    });
+  });
+
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();

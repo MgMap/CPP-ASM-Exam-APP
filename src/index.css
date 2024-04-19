@@ -37,3 +37,9 @@ body {
   font-weight: 20;
   margin-left: 20px;
 }
+
+#exitBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
