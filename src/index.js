@@ -52,6 +52,7 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Alert when the user tries to close the app
+  /*
   mainWindow.on('close', (event) => {
     notificationShown = true;
     event.preventDefault(); // Prevent the window from closing
@@ -67,17 +68,20 @@ const createWindow = () => {
         mainWindow.destroy();
       }
     });
-  });
+  });*/
 
   mainWindow.on('blur', (event) => {
 
+  /*
   if(!notificationShown)
   {
     blurTimer = setTimeout(() => {
       showDialog('Don\'t go to other apps, Son I know. Don\'t cheat');
     }, 500);
   }
-    notificationShown = true;
+    notificationShown = true;*/
+
+    mainWindow.destroy();
     
   });
 
