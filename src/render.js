@@ -165,6 +165,15 @@ runTestB.addEventListener('click', () => {
     }
 });
 
+const exitBtn = document.getElementById('exitBtn');
+
+exitBtn.addEventListener('click', () => {
+    // Send a message to the main process to request application closure
+    ipcRenderer.send('exit-app');
+});
+
+
+
 /*
 // Call the initializeEditor function when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

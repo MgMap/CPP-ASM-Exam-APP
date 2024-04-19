@@ -5,10 +5,13 @@ let mainWindow;
 let canvasView;
 let blurTimer;
 let notificationShown = false;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+//-------------------------canvas window ---------------------------
 
 function createCanvasView() {
   // Create a BrowserView for the canvas
@@ -28,12 +31,16 @@ function createCanvasView() {
   mainWindow.canvasView = canvasView;
 }
 
+//-------------------------main editor window ---------------------------
+
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
-    koisk: true, //comment this out if it is too annoying
+    alwaysOnTop: true,
+    kiosk: true, //comment this out if it is too annoying
+    resizable: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -45,40 +52,46 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Alert when the user tries to close the app
+  /*
   mainWindow.on('close', (event) => {
     notificationShown = true;
-  event.preventDefault(); // Prevent the window from closing
-  dialog.showMessageBox(mainWindow, {
-    type: 'warning',
-    message: 'Are you sure you want to exit the exam?',
-    buttons: ['Yes', 'No'],
-    defaultId: 1,
-    cancelId: 1
+    event.preventDefault(); // Prevent the window from closing
+    dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      message: 'Are you sure you want to exit the exam?',
+      buttons: ['Yes', 'No'],
+      defaultId: 1,
+      cancelId: 1
   }).then((response) => {
-    if (response.response === 0) {
-      // User clicked 'Yes', close the window
-      mainWindow.destroy();
-    }
-  });
-});
+      if (response.response === 0) {
+        // User clicked 'Yes', close the window
+        mainWindow.destroy();
+      }
+    });
+  });*/
 
-mainWindow.on('blur', (event) => {
+  mainWindow.on('blur', (event) => {
 
+  /*
   if(!notificationShown)
   {
-  blurTimer = setTimeout(() => {
-    showDialog('Don\'t go to other apps, Son I know. Don\'t cheat');
-  }, 500);
-}
-  notificationShown = true;
-});
+    blurTimer = setTimeout(() => {
+      showDialog('Don\'t go to other apps, Son I know. Don\'t cheat');
+    }, 500);
+  }
+    notificationShown = true;*/
 
-// Track when the app gains focus
-mainWindow.on('focus', () => {
-  // User returned to the app
-  clearTimeout(blurTimer);
-  notificationShown = false;
-});
+    mainWindow.destroy();
+    
+  });
+
+  // Track when the app gains focus
+  mainWindow.on('focus', () => {
+    // User returned to the app
+    clearTimeout(blurTimer);
+    notificationShown = false;
+  });
+
   // Create and attach the canvas BrowserView
   createCanvasView();
 
@@ -94,21 +107,28 @@ mainWindow.on('focus', () => {
       canvasView.setBounds({ x: 0, y: 0, width: 1, height: 1 });
   });
 
+  // Alert when the user tries to exit the app
+  ipcMain.on('exit-app', (event) => {
+    notificationShown = true;
+    event.preventDefault(); // Prevent the window from closing
+    dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      message: 'Are you sure you want to exit the exam?',
+      buttons: ['Yes', 'No'],
+      defaultId: 1,
+      cancelId: 1
+  }).then((response) => {
+      if (response.response === 0) {
+        // User clicked 'Yes', close the window
+        mainWindow.destroy();
+      }
+    });
+  });
+
+
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  /*
-  // Create a BrowserView
-  const browserView = new BrowserView();
-  mainWindow.setBrowserView(browserView);
-  browserView.setBounds({ x: 500, y: 0, width: 700, height: 800 });
-
-  // Load Canvas URL into the BrowserView
-  browserView.webContents.loadURL('https://canvas.pasadena.edu');*/
-
-
-  // Optional: Open DevTools for debugging
-  //browserView.webContents.openDevTools();
 };
 
 
@@ -125,12 +145,13 @@ app.whenReady().then(() => {
       createWindow();
     }
 
-  const win = new BrowserWindow({ width: 800, height: 600 })
+    const win = new BrowserWindow({ width: 800, height: 600 })
 
-  const view = new BrowserView()
-  win.setBrowserView(view)
-  view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
-  view.webContents.loadURL('https://electronjs.org')
+    const view = new BrowserView()
+    win.setBrowserView(view)
+    view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
+    view.webContents.loadURL('https://electronjs.org')
+
   });
 });
 
@@ -142,6 +163,12 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+// second helper to prevent the app from loosing focus
+app.on('browser-window-blur', (event, bw) => {
+  bw.restore()
+  bw.focus()
+})
 
 // Function to display notifications using Electron's dialog module
 function showDialog(message) {
