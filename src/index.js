@@ -35,9 +35,7 @@ const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1600,
-    height: 1000,
-    alwaysOnTop: true,
-    kiosk: false, //comment this out if it is too annoying
+    height: 1000, //comment this out if it is too annoying
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -157,12 +155,12 @@ app.whenReady().then(() => {
 });
 
 // second helper to prevent the app from loosing focus
-app.on('browser-window-blur', (event, bw) => {
-  bw.restore()
-  bw.focus()
+// app.on('browser-window-blur', (event, bw) => {
+//   bw.restore()
+//   bw.focus()
 
-  globalShortcut.unregisterAll();
-})
+//   globalShortcut.unregisterAll();
+// })
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
