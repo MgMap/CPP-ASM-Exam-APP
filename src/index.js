@@ -6,8 +6,7 @@ const { globalShortcut } = require('electron');
 
 let mainWindow;
 let canvasView;
-let blurTimer;
-let notificationShown = false;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -36,9 +35,9 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
-    alwaysOnTop: true,
-    kiosk: false, //comment this out if it is too annoying
-    webPreferences: {
+    //alwaysOnTop: true,
+    //kiosk: false, //comment this out if it is too annoying
+      webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js'),
@@ -50,9 +49,9 @@ const createWindow = () => {
 
   // Alert when the user tries to close the app
   mainWindow.on('close', (event) => {
-    notificationShown = true;
-  event.preventDefault(); // Prevent the window from closing
-  dialog.showMessageBox(mainWindow, {
+    
+    event.preventDefault(); // Prevent the window from closing
+    dialog.showMessageBox(mainWindow, {
     type: 'warning',
     message: 'Are you sure you want to exit the exam?',
     buttons: ['Yes', 'No'],
@@ -66,22 +65,16 @@ const createWindow = () => {
   });
 });
 
-mainWindow.on('blur', (event) => {
+mainWindow.on('blur', () => {
 
-  if(!notificationShown)
-  {
-  blurTimer = setTimeout(() => {
-    showDialog('Don\'t go to other apps, Son I know. Don\'t cheat');
-  }, 500);
-  }
-  notificationShown = true;
+  mainWindow.webContents.send('blur-app');
 });
 
 // Track when the app gains focus
 mainWindow.on('focus', () => {
   // User returned to the app
-  clearTimeout(blurTimer);
-  notificationShown = false;
+  mainWindow.webContents.send('focus-app');
+  //notificationShown = false;
 });
   // Create and attach the canvas BrowserView
   createCanvasView();
@@ -100,20 +93,7 @@ mainWindow.on('focus', () => {
 
   // Alert when the user tries to exit the app
   ipcMain.on('exit-app', (event) => {
-    notificationShown = true;
-    event.preventDefault(); // Prevent the window from closing
-    dialog.showMessageBox(mainWindow, {
-      type: 'warning',
-      message: 'Are you sure you want to exit the exam?',
-      buttons: ['Yes', 'No'],
-      defaultId: 1,
-      cancelId: 1
-  }).then((response) => {
-      if (response.response === 0) {
-        // User clicked 'Yes', close the window
-        mainWindow.destroy();
-      }
-    });
+    mainWindow.destroy();
   });
 
   // Open the DevTools.
@@ -157,12 +137,12 @@ app.whenReady().then(() => {
 });
 
 // second helper to prevent the app from loosing focus
-app.on('browser-window-blur', (event, bw) => {
-  bw.restore()
-  bw.focus()
+// app.on('browser-window-blur', (event, bw) => {
+//   bw.restore()
+//   bw.focus()
 
-  globalShortcut.unregisterAll();
-})
+//   globalShortcut.unregisterAll();
+// })
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

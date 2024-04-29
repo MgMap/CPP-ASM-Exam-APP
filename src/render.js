@@ -3,7 +3,7 @@ const { ipcRenderer } = require('electron');
 
 const btnCanvas = document.getElementById("btnCanvas");
 const btnTextEditor = document.getElementById("btnTextEditor");
-
+let notificationsShown = false;
 btnCanvas.addEventListener('click', () => {
     
     // Send an IPC message to the main process to display the Canvas window
@@ -169,9 +169,54 @@ const exitBtn = document.getElementById('exitBtn');
 
 exitBtn.addEventListener('click', () => {
     // Send a message to the main process to request application closure
-    ipcRenderer.send('exit-app');
+    notificationsShown = true;
+    const confirmExit = window.confirm('Are you sure you want to exit the Exam?');
+
+    if(confirmExit)
+    {
+        ipcRenderer.send('exit-app');
+    }
 });
 
+let counterElement = document.getElementById('counter');
+let modal = document.getElementById('myModal');
+
+
+ipcRenderer.on('close-window', () => {
+    notificationsShown = true;
+    const confirmExit = window.confirm('Are you sure you want to exit the Exam?');
+
+    if(confirmExit)
+    {
+    ipcRenderer.send('exit-app');
+    }
+});
+
+ipcRenderer.on('blur-app', () => {
+
+    
+    if (!notificationsShown) {
+        startTimer();
+        notificationsShown = true; // Set the flag to true to indicate that the notification has been shown
+        modal.style.display = "block";
+        updateCounter();
+    }
+})
+
+function updateCounter() {
+    let minutes = Math.floor(time_counter / 60);
+    let seconds = time_counter % 60;
+    counterElement.textContent = `${padTime(minutes)}:${padTime(seconds)}`;
+        setTimeout(() => {
+            updateCounter();
+        }, 1000); // Update the counter every second
+    
+}
+ipcRenderer.on('focus-app', () => {
+    stopTimer();
+    notificationsShown = false;
+    modal.style.display = "none";
+})
 
 
 /*
