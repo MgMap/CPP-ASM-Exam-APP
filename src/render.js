@@ -180,7 +180,8 @@ exitBtn.addEventListener('click', () => {
 
 let counterElement = document.getElementById('counter');
 let modal = document.getElementById('myModal');
-
+let off_screen_counter = 0;
+let offScreen= document.getElementById('numberOftabs');
 
 ipcRenderer.on('close-window', () => {
     notificationsShown = true;
@@ -198,8 +199,10 @@ ipcRenderer.on('blur-app', () => {
     if (!notificationsShown) {
         startTimer();
         notificationsShown = true; // Set the flag to true to indicate that the notification has been shown
+        off_screen_counter++;
         modal.style.display = "block";
         updateCounter();
+        
     }
 })
 
@@ -207,6 +210,7 @@ function updateCounter() {
     let minutes = Math.floor(time_counter / 60);
     let seconds = time_counter % 60;
     counterElement.textContent = `${padTime(minutes)}:${padTime(seconds)}`;
+    offScreen.textContent = off_screen_counter;
         setTimeout(() => {
             updateCounter();
         }, 1000); // Update the counter every second

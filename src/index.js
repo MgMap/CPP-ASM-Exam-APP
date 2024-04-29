@@ -36,7 +36,7 @@ const createWindow = () => {
     width: 1600,
     height: 1000,
     //alwaysOnTop: true,
-    //kiosk: false, //comment this out if it is too annoying
+      kiosk: true, //comment this out if it is too annoying
       webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
