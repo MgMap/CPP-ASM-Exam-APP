@@ -57,10 +57,12 @@
         </div>
 
         <div class="output-container">
-          <h2>Output:</h2>
-          <p id="codeOutput"></p>
-          <!-- <div id="timer">00:00</div> -->
           <!-- Timer display -->
+          <p>Total Time exited!</p>
+          <div id="timer">00:00</div>
+          <h2>Output:</h2>
+
+          <p id="codeOutput"></p>
         </div>
 
         <div>
@@ -68,7 +70,12 @@
         </div>
       </div>
     </div>
-
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <p>Alert: Come back</p>
+        <p id="counter"></p>
+      </div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ace.js"></script>
     <script type="module" src="render.js"></script>
     <script src="timer.js"></script>
