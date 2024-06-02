@@ -1,32 +1,45 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(barkeshli_s22)
+# CMakeList.txt : CMake project for cmakeHopefully, include source and define
+# project-specific logic here.
+#
+cmake_minimum_required (VERSION 3.8)
+
+project ("Grader" LANGUAGES C CXX ASM)
+
+enable_language(ASM_MASM)
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#   Grab all CPP files from includes folder
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+set(CPP_INCLUDES_FOLDER includes)
+FILE(GLOB_RECURSE CPP_SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}   "${CPP_INCLUDES_FOLDER}/*.cpp" )
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#   Grab all ASM files from includes folder
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+set(ASM_INCLUDES_FOLDER includes)
+FILE(GLOB_RECURSE ASM_SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}   "${ASM_INCLUDES_FOLDER}/*.asm" )
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+# Add source to this project's executable.
+#add_executable (makeBurmaproud "cmake.cpp" "cmake.h" "test.asm")
+
+ADD_EXECUTABLE(basic_test
+    _tests/_test_files/basic_test.cpp
+    ${CPP_INCLUDES_FOLDER}
+    ${ASM_SOURCE_FILES}
+
+)
 
 
-#. . . . . . . . . . . . . . . . . . . .
-include(GNUInstallDirs)
-if(MSVC)
-    add_compile_options(/W4)
-    add_link_options(/W4)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
-    # message("compiler: MSVC")
-else()
-    # message("compiler: NOT MSVC")
-    # add_compile_options(-Wall -Wextra -pedantic -Werror -Wl,--fatal-warnings)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Set architecture to x86
+if (MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:IA32")
 endif()
 
+# TODO: Add tests and install targets if needed.
 
-# place binaries and libraries according to GNU standards
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-
-
-
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-endif()
-#. . . . . . . . . . . . . . . . . . . .
-
+# for google testing
 # ------------------------------------
 include(FetchContent)
 FetchContent_Declare(
@@ -44,34 +57,14 @@ set(CMAKE_CXX_STANDARD 11)
  
 enable_testing() 
 
+# Irvine32 library files
+set(IRVINE32_DIR "C:/Irvine")
 
-# ------------------------------------
-
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-#   Grab all cpp files from includes folder
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-set(INCLUDES_FOLDER includes)
-FILE(GLOB_RECURSE SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}   "${INCLUDES_FOLDER}/*.cpp" )
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# link Irvine32 library & google test
+target_include_directories(basic_test PRIVATE ${IRVINE32_DIR})
+target_link_libraries(basic_test PRIVATE gtest ${IRVINE32_DIR}/Irvine32.lib)
 
 
 
-ADD_EXECUTABLE(main
-    main.cpp
-    ${SOURCE_FILES}
-)
-
-ADD_EXECUTABLE(basic_test
-    _tests/_test_files/basic_test.cpp
-    ${SOURCE_FILES}
-)
-
-ADD_EXECUTABLE(testB
-    _tests/_test_files/testB.cpp
-    ${SOURCE_FILES}
-#- - - - - - - - - - - - - - - - 
-)
-
-TARGET_LINK_LIBRARIES(basic_test gtest)
-TARGET_LINK_LIBRARIES(testB gtest)
+#-------Only miss the sun when it starts to snow------
+#-------Only know you love her when you let her go-----

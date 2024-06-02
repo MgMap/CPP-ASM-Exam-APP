@@ -29,11 +29,8 @@
             </button>
           </div>
           <div class="btn-container">
-            <button class="btn btn-primary" id="btnBasicTest">
-              basic_test.cpp
-            </button>
             <button class="btn btn-primary" id="btnTestB">testB.cpp</button>
-            <button class="btn btn-primary" id="btnPoly">poly.cpp</button>
+            <button class="btn btn-primary" id="btnASM">function.asm</button>
           </div>
 
           <div class="editor-container">
@@ -44,8 +41,13 @@
             <button class="btn btn-warning" id="runBasicTest">
               Run basic_test.cpp
             </button>
+            <button class="btn btn-warning" id="saveTestB">
+              Save testB.cpp
+            </button>
+            <button class="btn btn-warning" id="saveASM">Save ASM</button>
+
             <button class="btn btn-warning" id="runTestB">Run testB.cpp</button>
-            <button class="btn btn-danger" id="submitBtn">Submit Code</button>
+            <!-- <button class="btn btn-danger" id="submitBtn">Submit Code</button> -->
           </div>
           <!-- <div class="timer-controls">
             <label for="examTime">Set Exam Time (minutes):</label>
@@ -63,6 +65,8 @@
           <br />
           <span>Total Attempts to Change Tabs</span>
           <span id="numberOftabs">0</span>
+          <br />
+          <span id="cheaterText" style="color: blue">This guy is Cheating</span>
           <h2>Output:</h2>
 
           <p id="codeOutput"></p>
