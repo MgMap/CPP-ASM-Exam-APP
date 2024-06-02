@@ -43,15 +43,15 @@ editor = ace.edit(editor, {
 document.addEventListener('DOMContentLoaded', async ()=>{
     try {
         // Fetch the content of basic_test.cpp
-        const response = await fetch('../includes/poly/poly.cpp');
+        const response = await fetch('../_tests/_test_files/testB.cpp');
         if (!response.ok) {
-            throw new Error('Failed to fetch poly.cpp');
+            throw new Error('Failed to fetch testB.cpp');
         }
-        const polyCode = await response.text();
+        const code = await response.text();
 
         //console.log(basicTestCppCode);
         // Set the content of the Ace editor to the fetched code
-        editor.setValue(polyCode);
+        editor.setValue(code);
         // Move the cursor to the beginning of the document
         editor.moveCursorToPosition({ row: 0, column: 0 });
     } catch (error) {

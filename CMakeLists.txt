@@ -31,6 +31,13 @@ ADD_EXECUTABLE(basic_test
 
 )
 
+ADD_EXECUTABLE(testB
+    _tests/_test_files/testB.cpp
+    ${CPP_INCLUDES_FOLDER}
+    ${ASM_SOURCE_FILES}
+
+)
+
 
 # Set architecture to x86
 if (MSVC)
@@ -64,7 +71,8 @@ set(IRVINE32_DIR "C:/Irvine")
 target_include_directories(basic_test PRIVATE ${IRVINE32_DIR})
 target_link_libraries(basic_test PRIVATE gtest ${IRVINE32_DIR}/Irvine32.lib)
 
-
+target_include_directories(testB PRIVATE ${IRVINE32_DIR})
+target_link_libraries(testB PRIVATE gtest ${IRVINE32_DIR}/Irvine32.lib)
 
 #-------Only miss the sun when it starts to snow------
 #-------Only know you love her when you let her go-----
