@@ -2,6 +2,7 @@
 let timerInterval;
 let time_counter=1;
 let timerDisplay = document.getElementById('timer');
+let cheaterDiaply = document.getElementById('cheaterText');
 
 function startTimer() {
   
@@ -26,4 +27,12 @@ function stopTimer()
 }
 function padTime(time) {
   return time < 10 ? `0${time}` : time;
+}
+
+function displayCheater()
+{
+  if(time_counter >= 30)
+    {
+        cheaterDiaply.style.color = "red";
+    }
 }

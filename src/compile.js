@@ -3,12 +3,20 @@ const fs = require('fs');
 const path = require('path');
 
 function compileCpp(code, fileName) {
-    
-    // Save the code to a temporary file
-    //fs.writeFileSync('main.cpp', code);
+    const parentDir = path.resolve(__dirname, '..');
 
-    // Execute compilation process using provided CMakeLists.txt and gcc
-    const cmake = spawn('cmake', ['-S', '.', '-B', 'build']);
+    const cmakeArgs = [
+        '-DCMAKE_BUILD_TYPE:STRING=Debug',
+        '-DCMAKE_C_COMPILER:FILTEPATH=C:/MinGW/bin/gcc.exe',
+        '-DCMAKE_CXX_COMPILER:FILEPATH=C:/MinGW/bin/g++.exe',
+        '-DCMAKE_ASM_COMPILER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/bin/Hostx86/x86/cl.exe',
+        '-S', '.',
+        '-B', 'build',
+        '-G', 'Ninja'
+    ];
+    
+    // Spawn the cmake process
+    const cmake = spawn('cmake', cmakeArgs, {cwd: parentDir});
 
     cmake.stdout.on('data', (data) => {
         console.log(`cmake stdout: ${data}`);
@@ -19,64 +27,52 @@ function compileCpp(code, fileName) {
     });
 
     cmake.on('close', (code) => {
-
         if (code === 0) {
             console.log('CMake configuration successful! Now trying to run the build');
-        
 
-         // Execute build process
-         /*
-         const parentDir = __dirname;
-         const pathResolved = path.resolve(__dirname, "..");
-         console.log(pathResolved);
-         const make = spawn('make', [], { cwd: pathResolved }); //  we're using Make */
+            // Execute build process using cmake --build
+            const buildDir = path.resolve(parentDir, 'build');
+            const make = spawn('cmake', ['--build', 'build'], { cwd: parentDir });
 
-         const parentDir = __dirname;
-         const buildDir = path.resolve(parentDir, "../build");
-
-         const make = spawn('cmake', ['--build', buildDir]);
-         make.stdout.on('data', (data) => {
-             console.log(`make stdout: ${data}`);
-         });
-         make.stderr.on('data', (data) => {
-             console.error(`make stderr: ${data}`);
-         });
-         make.on('close', (code) => {
-            //
-            let output = '';
-
-            // execute the compiled program
-            const compiledProgram = spawn(path.join(__dirname, '..', 'build', 'bin', fileName), [], {
-                stdio: 'pipe' // ensure we can capture the output
+            make.stdout.on('data', (data) => {
+                console.log(`make stdout: ${data}`);
             });
 
-            
-            compiledProgram.stdout.on('data', (data) => {
-                console.log(`Program output: ${data}`);
-                output += data.toString();
-
+            make.stderr.on('data', (data) => {
+                console.error(`make stderr: ${data}`);
             });
-            compiledProgram.stderr.on('data', (data) => {
-                console.error(`Program error: ${data}`);
-                
+
+            make.on('close', (code) => {
+                if (code === 0) {
+                    console.log('Build successful! Now running the compiled program');
+
+                    // Execute the compiled program
+                    const compiledProgram = spawn(path.join(buildDir, fileName), [], { cwd: parentDir });
+
+                    let output = '';
+                    compiledProgram.stdout.on('data', (data) => {
+                        console.log(`Program output: ${data}`);
+                        output += data.toString();
+                    });
+
+                    compiledProgram.stderr.on('data', (data) => {
+                        console.error(`Program error: ${data}`);
+                    });
+
+                    compiledProgram.on('close', (code) => {
+                        console.log(`Program exited with code ${code}`);
+                        // Display the program output
+                        console.log("program output is", output);
+                        document.getElementById('codeOutput').innerText = output;
+                    });
+                } else {
+                    console.error(`Build failed with code ${code}`);
+                }
             });
-            compiledProgram.on('close', (code) => {
-                console.log(`Program exited with code ${code}`);
-                // Display the program output in the HTML element
-                console.log("program output is", output);
-                document.getElementById('codeOutput').innerText = output;
-            });
-         })
-
-            
-            
-
-
         } else {
             console.error(`CMake configuration failed with code ${code}`);
         }
     });
-
 }
 
-module.exports = {compileCpp}
+module.exports = { compileCpp };

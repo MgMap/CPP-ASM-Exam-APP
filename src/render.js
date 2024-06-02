@@ -1,9 +1,10 @@
 const {compileCpp} = require('./compile')
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, dialog } = require('electron');
 
 const btnCanvas = document.getElementById("btnCanvas");
 const btnTextEditor = document.getElementById("btnTextEditor");
 let notificationsShown = false;
+let lastClick = '';
 btnCanvas.addEventListener('click', () => {
     
     // Send an IPC message to the main process to display the Canvas window
@@ -59,29 +60,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     }
 })
 
-const btnBasicTest = document.getElementById("btnBasicTest")
-btnBasicTest.addEventListener('click', async () => {
-    try {
-        // Fetch the content of basic_test.cpp
-        const response = await fetch('../_tests/_test_files/basic_test.cpp');
-        if (!response.ok) {
-            throw new Error('Failed to fetch basic_test.cpp');
-        }
-        const basicTestCppCode = await response.text();
-
-        //console.log(basicTestCppCode);
-        // Set the content of the Ace editor to the fetched code
-        editor.setValue(basicTestCppCode);
-        // Move the cursor to the beginning of the document
-        editor.moveCursorToPosition({ row: 0, column: 0 });
-    } catch (error) {
-        console.error(error);
-        // Handle errors, such as displaying an error message to the user
-    }
-});
 
 const btnTestB = document.getElementById("btnTestB")
 btnTestB.addEventListener('click', async () => {
+    lastClick = "btnTestB";
     try {
         // Fetch the content of basic_test.cpp
         const response = await fetch('../_tests/_test_files/testB.cpp');
@@ -101,13 +83,14 @@ btnTestB.addEventListener('click', async () => {
     }
 });
 
-const btnPoly = document.getElementById("btnPoly")
-btnPoly.addEventListener('click', async () => {
+const btnASM = document.getElementById("btnASM")
+btnASM.addEventListener('click', async () => {
+    lastClick = "btnASM";
     try {
         // Fetch the content of basic_test.cpp
-        const response = await fetch('../includes/poly/poly.cpp');
+        const response = await fetch('../includes/asm_files/functions.asm');
         if (!response.ok) {
-            throw new Error('Failed to fetch poly.cpp');
+            throw new Error('Failed to fetch function.asm');
         }
         const testBCode = await response.text();
 
@@ -122,19 +105,47 @@ btnPoly.addEventListener('click', async () => {
     }
 });
 
-const submitBtn = document.getElementById("submitBtn")
-submitBtn.addEventListener('click', () => {
+    document.getElementById('saveASM').addEventListener('click', () => {
+       if(lastClick === 'btnASM')
+        { const code = editor.getValue();
+        console.log('ASM Save Button Clicked');
+        ipcRenderer.send('save-ASM', code);
+        }
+        else{
+            alert('Please click functions.asm before saving asm file.')
+        }
+    });
 
-    // Get the code from the textarea
-    const code = editor.getValue();
-    console.log("code is", code);
-    // Only proceed if there is code to compile and run
-    if (code.trim() !== '') {
-        compileCpp(code, "main");
-    } else {
-        alert('Please enter some code before submitting.');
-    }
-});
+    ipcRenderer.on('save-ASM-reply', (event, message) => {
+        console.log('Received save-code-reply:', message);
+        if (message === 'success') {
+            console.log('ASM code saved successfully');
+        } else {
+            console.error('Failed to save ASM code');
+        }
+    });
+
+    document.getElementById('saveTestB').addEventListener('click', () => {
+        
+        if(lastClick === 'btnTestB'){
+            const code = editor.getValue();
+        console.log('Save Test B Save Button Clicked');
+        ipcRenderer.send('save-test-B', code);
+        }
+        else{
+            alert('Please click testB.asm before saving asm file.')
+        }
+    });
+
+    ipcRenderer.on('save-testB-reply', (event, message) => {
+        console.log('Received save-code-reply:', message);
+        if (message === 'success') {
+            console.log('TestB code saved successfully');
+        } else {
+            console.error('Failed to save TestB code');
+        }
+    });
+
 
 
 const runBasicTest = document.getElementById("runBasicTest")
@@ -202,7 +213,6 @@ ipcRenderer.on('blur-app', () => {
         off_screen_counter++;
         modal.style.display = "block";
         updateCounter();
-        
     }
 })
 
@@ -214,7 +224,7 @@ function updateCounter() {
         setTimeout(() => {
             updateCounter();
         }, 1000); // Update the counter every second
-    
+    displayCheater();
 }
 ipcRenderer.on('focus-app', () => {
     stopTimer();

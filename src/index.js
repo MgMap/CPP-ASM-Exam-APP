@@ -1,8 +1,10 @@
 const { app, BrowserWindow, BrowserView, ipcMain, dialog } = require('electron');
 const path = require('node:path');
+const fs = require('fs');
 
 //for disabling shortcuts
 const { globalShortcut } = require('electron');
+const { compileCpp } = require('./compile');
 
 let mainWindow;
 let canvasView;
@@ -100,6 +102,35 @@ mainWindow.on('focus', () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
+  ipcMain.on('save-ASM', (event,code)=>{
+    const filePath = path.join(__dirname, '../includes/asm_files/functions.asm');
+    fs.writeFile(filePath, code, (err) => {
+      if (err) {
+          console.error('Failed to save file', err);
+          event.reply('save-ASM-reply', 'fail');
+          return;
+      }
+      console.log('File saved successfully');
+      event.reply('save-ASM-reply', 'success');
+
+      // Run the compile function
+  });
+});
+
+ipcMain.on('save-test-B', (event,code)=>{
+  const filePath = path.join(__dirname, '../_tests/_test_files/testB.cpp');
+  fs.writeFile(filePath, code, (err) => {
+    if (err) {
+        console.error('Failed to save file', err);
+        event.reply('save-testB-reply', 'fail');
+        return;
+    }
+    console.log('File saved successfully');
+    event.reply('save-testB-reply', 'success');
+
+    // Run the compile function
+});
+});
   /*
   // Create a BrowserView
   const browserView = new BrowserView();
