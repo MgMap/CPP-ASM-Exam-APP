@@ -13,12 +13,11 @@ function compileCpp(code, fileName) {
         output += data.toString();
         document.getElementById('codeOutput').innerText = output;
     }
-    
+
     const cmakeArgs = [
         '-DCMAKE_BUILD_TYPE:STRING=Debug',
         '-DCMAKE_C_COMPILER:FILTEPATH=C:/MinGW/bin/gcc.exe',
         '-DCMAKE_CXX_COMPILER:FILEPATH=C:/MinGW/bin/g++.exe',
-        '-DCMAKE_ASM_COMPILER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.33/bin/Hostx86/x86/cl.exe',
         '-S', '.',
         '-B', 'build',
         '-G', 'Ninja'
