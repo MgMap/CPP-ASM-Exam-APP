@@ -71,5 +71,5 @@ node<ITEM_TYPE> *_where_this_goes(node<ITEM_TYPE> *head, ITEM_TYPE item, bool as
 template <typename ITEM_TYPE>
 node<ITEM_TYPE> *_last_node(node<ITEM_TYPE> *head);
 
-#include "linked_list_functions.cpp"
+//#include "linked_list_functions.cpp"
 #endif
