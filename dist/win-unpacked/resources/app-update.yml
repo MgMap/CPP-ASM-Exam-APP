@@ -1,0 +1,4 @@
+owner: gentletester
+repo: CPP
+provider: github
+updaterCacheDirName: exam-grader-updater
