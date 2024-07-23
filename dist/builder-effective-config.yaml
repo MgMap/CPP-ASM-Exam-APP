@@ -1,6 +1,0 @@
-directories:
-  output: dist
-  buildResources: build
-asar: false
-files: []
-electronVersion: 30.0.1

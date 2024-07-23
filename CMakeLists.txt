@@ -71,7 +71,7 @@ ADD_EXECUTABLE(basic_test
 )
 ADD_EXECUTABLE(testB
     #_tests/_test_files/testB.cpp.obj
-    _tests/_test_files/testB.cpp.obj
+    _tests/_test_files/testB.cpp
 
     ${CPP_SOURCE_FILES}
 
