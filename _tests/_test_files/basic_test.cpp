@@ -5,48 +5,44 @@
 #include <set>
 #include <vector>
 #include <list>
-#include "../../includes/poly/poly.h"
-#include "../../includes/array_functions/array_functions.h"
-// #include "../../includes/poly/poly_student.cpp"
-
 using namespace std;
-bool stub(bool debug = false)
-{
-  return true;
-}
 
+#include "../../includes/list_simple/list_simple.h"
+#include "../../includes/linked_list_functions/linked_list_functions.h"
+#include "../../includes/node/node.h"
+
+//------------------------------------------------------------------------------------------
+// Files we are testing:
 bool basic_test(bool debug = false)
 {
-  double coefs1[] = {8.0, 5.0, 6.0, 0.0, 4.0};
-  double coefs2[] = {2.0, 7.0, 3.0, 0.0, 1.0, 9.0};
-  Poly p(coefs1, 4);
-  Poly q(coefs2, 5);
-  cout << "p: " << p << endl;
-  cout << "q: " << q << endl;
-  cout << "--------------------------------" << endl;
-  cout << "p + q   : " << p + q << endl;
-  cout << "p - q   : " << p - q << endl;
-  cout << "p * q   : " << p * q << endl;
-  cout << "p / q   : " << p / q << endl;
-  cout << "p % q   : " << p % q << endl;
-  cout << "q / p   : " << q / p << endl;
-  cout << "q % p   : " << q % p << endl;
+
+  List<int> list;
+  node<int> *marker;
+  cout << "list.empty(): " << boolalpha << list.empty() << endl;
+  for (int i = 1; i < 6; i++)
+  {
+    list.insert_head(i);
+    list.insert_after(i * 10, list.begin());
+    list.insert_before(i * 100, list.begin());
+    cout << list << endl;
+  }
+  marker = list.search(4);
+  cout << "found 4: " << *marker << endl;
+  marker = list.prev(marker);
+  cout << "previous to 4: " << *marker << endl;
+  list.Delete(marker);
+  cout << "deleted the prev: " << list << endl;
   cout << endl;
-  cout << "(p+q) - p == q? " << boolalpha << ((p + q) - p == q) << endl;
-  cout << "        p != q? " << boolalpha << (p != q) << endl;
-  cout << "        p != p? " << boolalpha << (p != p) << endl;
-  double *c = p.get_coefs();
-  cout << "        p.order(): " << p.order() << endl;
+  cout << "iterating all the nodes: " << endl;
+  for (marker = list.begin(); marker != list.end(); marker = marker->_next)
+  {
+    cout << *marker << " ";
+  }
+  cout << endl;
+  cout << "list.empty(): " << boolalpha << list.empty() << endl;
 
-  double coefs3[] = {0.0, 0.0, 0.0, 4.0, 5.0, 0.0, 0.0};
-  Poly r(coefs3, 6);
-  cout << "r: " << r << endl;
-  cout << "r.order(): " << r.order() << endl;
-  r.fix_order(); // should be called from the object
-  cout << "r.fixorder(): " << r << endl;
-
-  cout
-      << "\n\n---------------- D O N E -------------" << endl;
+  cout << "\n\n-------- DONE ---------\n\n"
+       << endl;
   return true;
 }
 //----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -54,7 +50,7 @@ bool basic_test(bool debug = false)
 bool debug = false;
 //----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-TEST(TEST_BASIC_TEST, BasicTest)
+TEST(BASIC_TEST, BasicTest)
 {
   bool success = basic_test(debug);
   EXPECT_EQ(success, true);
@@ -67,59 +63,61 @@ int main(int argc, char **argv)
     debug = argv[1][0] == 't';
   }
   ::testing::InitGoogleTest(&argc, argv);
-  std::cout << "\n\n----------running basic_test.cpp---------\n\n"
+  std::cout << "\n\n----------running testA.cpp---------\n\n"
             << std::endl;
   return RUN_ALL_TESTS();
 }
 
 /*
 
+13_03_simple_list_class git:(master)  😊 $> tree includes
 includes
-├── array_functions
-│   └── array_functions.h
-└── poly
-    ├── poly.cpp
-    ├── poly.h
-    ├── term.cpp
-    └── term.h
+├── linked_list_functions
+│   └── linked_list_functions.h
+├── list_simple
+│   └── list_simple.h
+└── node
+    └── node.h
+
+3 directories, 3 files
+13_03_simple_list_class git:(master)  😊 $> ./build/bin/basic_test
 
 
-
-
-----------running basic_test.cpp---------
+----------running testA.cpp---------
 
 
 [==========] Running 1 test from 1 test case.
 [----------] Global test environment set-up.
-[----------] 1 test from TEST_BASIC_TEST
-[ RUN      ] TEST_BASIC_TEST.BasicTest
-p: [+4.0X^4 +0.0X^3 +6.0X^2 +5.0X +8.0 ]
-q: [+9.0X^5 +1.0X^4 +0.0X^3 +3.0X^2 +7.0X +2.0 ]
---------------------------------
-p + q   : [+9.0X^5 +5.0X^4 +0.0X^3 +9.0X^2 +12.0X +10.0 ]
-p - q   : [-9.0X^5 +3.0X^4 +0.0X^3 +3.0X^2 -2.0X +6.0 ]
-p * q   : [+36.0X^9 +4.0X^8 +54.0X^7 +63.0X^6 +105.0X^5 +34.0X^4 +57.0X^3 +71.0X^2 +66.0X +16.0 ]
-p / q   : [+0.0 ]
-p % q   : [+4.0X^4 +0.0X^3 +6.0X^2 +5.0X +8.0 ]
-q / p   : [+2.2X +0.2 ]
-q % p   : [-13.5X^3 -9.8X^2 -12.2X +0.0 ]
+[----------] 1 test from BASIC_TEST
+[ RUN      ] BASIC_TEST.BasicTest
+list.empty(): true
+[100]-> [1]-> [10]-> |||
 
-(p+q) - p == q? true
-        p != q? true
-        p != p? false
-        p.order(): 4
-r: [+5.0X^4 +4.0X^3 +0.0X^2 +0.0X +0.0 ]
-r.order(): 4
-r.fixorder(): [+5.0X^4 +4.0X^3 +0.0X^2 +0.0X +0.0 ]
+[200]-> [2]-> [20]-> [100]-> [1]-> [10]-> |||
+
+[300]-> [3]-> [30]-> [200]-> [2]-> [20]-> [100]-> [1]-> [10]-> |||
+
+[400]-> [4]-> [40]-> [300]-> [3]-> [30]-> [200]-> [2]-> [20]-> [100]-> [1]-> [10]-> |||
+
+[500]-> [5]-> [50]-> [400]-> [4]-> [40]-> [300]-> [3]-> [30]-> [200]-> [2]-> [20]-> [100]-> [1]-> [10]-> |||
+
+found 4: [4]->
+previous to 4: [400]->
+deleted the prev: [500]-> [5]-> [50]-> [4]-> [40]-> [300]-> [3]-> [30]-> [200]-> [2]-> [20]-> [100]-> [1]-> [10]-> |||
 
 
----------------- D O N E -------------
-[       OK ] TEST_BASIC_TEST.BasicTest (0 ms)
-[----------] 1 test from TEST_BASIC_TEST (0 ms total)
+iterating all the nodes:
+[500]->  [5]->  [50]->  [4]->  [40]->  [300]->  [3]->  [30]->  [200]->  [2]->  [20]->  [100]->  [1]->  [10]->
+list.empty(): false
+
+
+-------- DONE ---------
+
+
+[       OK ] BASIC_TEST.BasicTest (1 ms)
+[----------] 1 test from BASIC_TEST (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test case ran. (0 ms total)
+[==========] 1 test from 1 test case ran. (1 ms total)
 [  PASSED  ] 1 test.
-➜  build git:(begin_submodule) ✗
-
 */
