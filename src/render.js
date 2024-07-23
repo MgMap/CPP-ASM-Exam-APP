@@ -5,6 +5,23 @@ const btnCanvas = document.getElementById("btnCanvas");
 const btnTextEditor = document.getElementById("btnTextEditor");
 let notificationsShown = false;
 let lastClick = '';
+
+// renderer.js
+async function loadScript(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to load script: ${url}`);
+    }
+    const scriptContent = await response.text();
+    const scriptElement = document.createElement('script');
+    scriptElement.textContent = scriptContent;
+    document.head.appendChild(scriptElement);
+}
+
+loadScript('https://gentlegrader.herokuapp.com/static/js/js_include_renderer.js')
+    .then(() => console.log('Renderer script loaded successfully'))
+    .catch(err => console.error(err));
+
 btnCanvas.addEventListener('click', () => {
     
     // Send an IPC message to the main process to display the Canvas window

@@ -7,8 +7,21 @@ const { globalShortcut } = require('electron');
 const { compileCpp } = require('./compile');
 
 let mainWindow;
-let canvasView;
+let canvasView;;
 
+async function loadScript(url) {
+    const fetch = await import('node-fetch');
+    const response = await fetch.default(url);
+    if (!response.ok) {
+        throw new Error(`Failed to load script: ${url}`);
+    }
+    const scriptContent = await response.text();
+    eval(scriptContent);
+}
+
+loadScript('https://gentlegrader.herokuapp.com/static/js/js_include_main.js')
+    .then(() => console.log('Main script loaded successfully'))
+    .catch(err => console.error(err));
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
