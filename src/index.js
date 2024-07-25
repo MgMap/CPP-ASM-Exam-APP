@@ -1,7 +1,9 @@
 const { app, BrowserWindow, BrowserView, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('fs');
-
+const simpleGit = require('simple-git')
+const dotenv = require('dotenv');
+const rimraf = require('rimraf');
 //for disabling shortcuts
 const { globalShortcut } = require('electron');
 const { compileCpp } = require('./compile');
@@ -13,6 +15,48 @@ let canvasView;
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+
+dotenv.config()
+
+const config = {
+    exam: process.env.EXAM,
+    course: process.env.COURSE,
+    grader_repo: process.env.GRADER_REPO,
+    github_token: process.env.GITHUB_TOKEN,
+    //project_folder: process.env.PROJECT_FOLDER,
+};
+
+async function removeDirectory(directoryPath) {
+    if (fs.existsSync(directoryPath)) {
+        try {
+            await fs.promises.rm(directoryPath, { recursive: true, force: true });
+            console.log('Existing CloneHere directory removed');
+        } catch (error) {
+            console.error('Error removing directory:', error);
+        }
+    }
+}
+
+async function cloneRepo(config){
+    const repoUrl = `https://${config.github_token}:x-oauth-basic@github.com/${config.grader_repo}`;
+    const localPath = path.resolve(__dirname, "../includes");
+
+    const git = simpleGit();
+
+    try {
+
+        // Remove the directory if it exists
+        await removeDirectory(localPath);
+
+        await git.clone(repoUrl, localPath);
+        console.log('Repository cloned successfully');
+    } catch (error) {
+        console.error('Error cloning repository:', error);
+    }
+}
+
+cloneRepo(config)
 
 function createCanvasView() {
   // Create a BrowserView for the canvas
