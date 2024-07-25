@@ -3,6 +3,9 @@ const { ipcRenderer, dialog } = require('electron');
 
 const btnCanvas = document.getElementById("btnCanvas");
 const btnTextEditor = document.getElementById("btnTextEditor");
+
+
+
 let notificationsShown = false;
 let lastClick = '';
 
@@ -276,4 +279,3 @@ ipcRenderer.on('focus-app', () => {
 document.addEventListener('DOMContentLoaded', () => {
     initializeEditor();
   });*/
-

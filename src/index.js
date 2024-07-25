@@ -8,6 +8,7 @@ const { compileCpp } = require('./compile');
 
 let mainWindow;
 let canvasView;;
+let modalWindow; 
 
 async function loadScript(url) {
     const fetch = await import('node-fetch');
@@ -45,11 +46,11 @@ function createCanvasView() {
   mainWindow.canvasView = canvasView;
 }
 
+//LINK - mainWindow
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1600,
-
     height: 1000,
     //alwaysOnTop: true,
       kiosk: false, //comment this out if it is too annoying
@@ -158,6 +159,62 @@ ipcMain.on('save-student-file', (event,code)=>{
   // Optional: Open DevTools for debugging
   //browserView.webContents.openDevTools();
 };
+//LINK - ModelWindow
+/*================================================================================================*/
+// Function to create the modal window
+function createModalWindow() {
+  modalWindow = new BrowserWindow({
+    parent: mainWindow, // Set the main window as the parent
+    modal: true, // Make this window a modal window
+    show: false, // Do not show the window until it is ready
+    width: 800, 
+    height: 600, 
+    webPreferences: {
+      nodeIntegration: true, // Enable Node.js integration
+      contextIsolation: false,
+      enableRemoteModule: true, // Enable remote module
+      preload: path.join(__dirname, 'src/preload.js'), // Preload script
+    },
+  });
+
+  modalWindow.loadFile(path.join(__dirname, 'modal.html'));
+
+  modalWindow.once('ready-to-show', () => {
+    modalWindow.show();
+    createModalBrowserView();   // Create the BrowserView for the modal window
+  });
+
+ // Set the modalWindow variable to null when the window is closed
+  modalWindow.on('closed', () => {
+    modalWindow = null;
+  });
+}
+
+function createModalBrowserView() {
+  modalBrowserView = new BrowserView({
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    }
+  });
+
+  modalWindow.setBrowserView(modalBrowserView);
+  modalBrowserView.setBounds({ x: 0, y: 50, width: 800, height: 550 });
+  modalBrowserView.webContents.loadURL('https://github.com');
+}
+
+ipcMain.on('open-modal', () => {
+  createModalWindow();
+});
+
+ipcMain.on('close-modal', () => {
+  if (modalWindow) {
+    modalWindow.close();
+  }
+});
+
+/*================================================================================================*/
+
 
 
 // This method will be called when Electron has finished
