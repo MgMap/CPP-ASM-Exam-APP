@@ -9,6 +9,8 @@ const { compileCpp } = require('./compile');
 let mainWindow;
 let canvasView;;
 
+
+//importing js from online///////////////////////////////////////
 async function loadScript(url) {
     const fetch = await import('node-fetch');
     const response = await fetch.default(url);
@@ -26,7 +28,7 @@ loadScript('https://gentlegrader.herokuapp.com/static/js/js_include_main.js')
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////
 function createCanvasView() {
   // Create a BrowserView for the canvas
   canvasView = new BrowserView();
