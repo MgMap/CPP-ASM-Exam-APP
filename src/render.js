@@ -1,4 +1,5 @@
 const {compileCpp} = require('./compile')
+const sendEmail = require('./reportScores')
 const { ipcRenderer, dialog } = require('electron');
 
 const btnCanvas = document.getElementById("btnCanvas");
@@ -126,6 +127,7 @@ btnStudentFile.addEventListener('click', async () => {
     }
 });
 
+
 document.getElementById('saveTestB').addEventListener('click', () => {
     
     if(lastClick === 'btnTestB'){
@@ -134,7 +136,8 @@ document.getElementById('saveTestB').addEventListener('click', () => {
     ipcRenderer.send('save-test-B', code);
     }
     else{
-        alert('Please click testB.cpp before saving cpp file.')    }
+        alert('Please click testB.cpp before saving cpp file.')
+    }
 });
 
 ipcRenderer.on('save-testB-reply', (event, message) => {
@@ -146,10 +149,8 @@ ipcRenderer.on('save-testB-reply', (event, message) => {
     }
 });
 
-
-
 document.getElementById('saveStudentFile').addEventListener('click', () => {
-
+    
     if(lastClick === 'btnStudentFile'){
         const code = editor.getValue();
     console.log('Save Student File Button Clicked');
@@ -169,32 +170,29 @@ ipcRenderer.on('save-student-file-reply', (event, message) => {
     }
 });
 
+
+
 const runBasicTest = document.getElementById("runBasicTest")
 runBasicTest.addEventListener('click', () => {
 
-    // Get the code from the textarea
-    const code = editor.getValue();
-    console.log("code is", code);
-    // Only proceed if there is code to compile and run
-    if (code.trim() !== '') {
-        compileCpp(code, "basic_test");
-    } else {
-        alert('Please enter some code before submitting.');
-    }
+    compileCpp("basic_test");
 });
 
 const runTestB = document.getElementById("runTestB")
 runTestB.addEventListener('click', () => {
 
-    // Get the code from the textarea
-    const code = editor.getValue();
-    console.log("code is", code);
-    // Only proceed if there is code to compile and run
-    if (code.trim() !== '') {
-        compileCpp(code, "testB");
-    } else {
-        alert('Please enter some code before submitting.');
-    }
+    compileCpp("testB");
+
+});
+
+const submitExam = document.getElementById("submitExam")
+submitExam.addEventListener('click', async () => {
+
+    let output = await compileCpp("testB");
+    console.log("Final output is ", output);
+
+    sendEmail(output);
+
 });
 
 const exitBtn = document.getElementById('exitBtn');
@@ -252,11 +250,3 @@ ipcRenderer.on('focus-app', () => {
     notificationsShown = false;
     modal.style.display = "none";
 })
-
-
-/*
-// Call the initializeEditor function when the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    initializeEditor();
-  });*/
-
