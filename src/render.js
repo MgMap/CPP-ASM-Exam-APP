@@ -1,252 +1,142 @@
-const {compileCpp} = require('./compile')
-const sendEmail = require('./reportScores')
-const { ipcRenderer, dialog } = require('electron');
-
-const btnCanvas = document.getElementById("btnCanvas");
-const btnTextEditor = document.getElementById("btnTextEditor");
-let notificationsShown = false;
-let lastClick = '';
-btnCanvas.addEventListener('click', () => {
-    
-    // Send an IPC message to the main process to display the Canvas window
-    ipcRenderer.send('show-canvas');
-});
-
-btnTextEditor.addEventListener('click', () => {
-    // Send an IPC message to the main process to display the Text Editor window
-    ipcRenderer.send('show-text-editor');
-});
-
-// Handle IPC messages from the main process
-ipcRenderer.on('show-canvas', (event, arg) => {
-    // Show the Canvas window and hide the Text Editor window
-    
-    console.log("render receives show-canvas")
-    console.log("the argument is", arg)
-
-    //document.getElementById("canvasWindow").style.display = "block";
-    //document.getElementById("textEditorWindow").style.display = "none";
-});
-
-ipcRenderer.on('show-text-editor', () => {
-    // Show the Text Editor window and hide the Canvas window
-    document.getElementById("canvasWindow").style.display = "none";
-    document.getElementById("textEditorWindow").style.display = "block";
-});
-
-let editor = document.querySelector("#editor");
-
-editor = ace.edit(editor, {
-  theme: "ace/theme/cobalt",
-  mode: "ace/mode/c_cpp",
-});
-
-document.addEventListener('DOMContentLoaded', async ()=>{
-    try {
-        // Fetch the content of basic_test.cpp
-        const response = await fetch('../_tests/_test_files/basic_test.cpp');
-        if (!response.ok) {
-            throw new Error('Failed to fetch testB.cpp');
+document.addEventListener('DOMContentLoaded', () => {
+    require(['vs/editor/editor.main'], function () {
+        const editor = monaco.editor.create(document.getElementById('editor'), {
+            value: '',
+            language: 'cpp',
+            theme: 'vs-dark',
+            automaticLayout: true
+        });
+        let notificationsShown = false;
+        let lastClick = '';
+        async function fetchAndSetValue(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${url}`);
+                }
+                const code = await response.text();
+                editor.setValue(code);
+            } catch (error) {
+                console.error(error);
+            }
         }
-        const code = await response.text();
 
-        //console.log(basicTestCppCode);
-        // Set the content of the Ace editor to the fetched code
-        editor.setValue(code);
-        // Move the cursor to the beginning of the document
-        editor.moveCursorToPosition({ row: 0, column: 0 });
-    } catch (error) {
-        console.error(error);
-        // Handle errors, such as displaying an error message to the user
-    }
-})
+        fetchAndSetValue('../_tests/_tests/_test_files/basic_test.cpp');
 
-const btnBasicTest = document.getElementById("btnBasicTest")
-btnBasicTest.addEventListener('click', async () => {
-    lastClick = "btnBasicTest";
-    try {
-        // Fetch the content of basic_test.cpp
-        const response = await fetch('../_tests/_test_files/basic_test.cpp');
-        if (!response.ok) {
-            throw new Error('Failed to fetch baisc_test.cpp');
+        document.getElementById('btnBasicTest').addEventListener('click', () => {
+            lastClick = "btnBasicTest";
+            fetchAndSetValue('../_tests/_tests/_test_files/basic_test.cpp');
+        });
+
+        document.getElementById('btnTestB').addEventListener('click', () => {
+            lastClick = "btnTestB";
+            fetchAndSetValue('../_tests/_tests/_test_files/testB.cpp');
+        });
+
+        document.getElementById('btnStudentFile').addEventListener('click', () => {
+            lastClick = "btnStudentFile";
+            fetchAndSetValue('.._tests/includes/array_functions/student.cpp');
+        });
+
+        document.getElementById('saveTestB').addEventListener('click', async () => {
+            if (lastClick === 'btnTestB') {
+                const code = editor.getValue();
+                window.electron.ipcRenderer.send('save-test-B', code);
+                const message = await new Promise(resolve => {
+                    window.electron.ipcRenderer.once('save-testB-reply', (event, message) => resolve(message));
+                });
+                if (message === 'success') {
+                    console.log('TestB code saved successfully');
+                } else {
+                    console.error('Failed to save TestB code');
+                }
+            } else {
+                alert('Please click testB.cpp before saving cpp file.');
+            }
+        });
+
+        document.getElementById('saveStudentFile').addEventListener('click', async () => {
+            if (lastClick === 'btnStudentFile') {
+                const code = editor.getValue();
+                window.electron.ipcRenderer.send('save-student-file', code);
+                const message = await new Promise(resolve => {
+                    window.electron.ipcRenderer.once('save-student-file-reply', (event, message) => resolve(message));
+                });
+                if (message === 'success') {
+                    console.log('The student\'s code was saved successfully');
+                } else {
+                    console.error('Failed to save the student\'s code');
+                }
+            } else {
+                alert('Please click your cpp file before saving.');
+            }
+        });
+
+        document.getElementById('runBasicTest').addEventListener('click', () => {
+            import('./compile.js').then(module => {
+                module.compileCpp("basic_test");
+            });
+        });
+
+        document.getElementById('runTestB').addEventListener('click', () => {
+            import('./compile.js').then(module => {
+                module.compileCpp("testB");
+            });
+        });
+
+        document.getElementById('submitExam').addEventListener('click', async () => {
+            const output = await import('./compile.js').then(module => module.compileCpp("testB"));
+            import('./reportScores.js').then(module => {
+                module.sendEmail(output);
+            });
+        });
+
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            notificationsShown = true;
+            const confirmExit = window.confirm('Are you sure you want to exit the Exam?');
+            if (confirmExit) {
+                window.electron.ipcRenderer.send('exit-app');
+            }
+        });
+
+        let counterElement = document.getElementById('counter');
+        let modal = document.getElementById('myModal');
+        let off_screen_counter = 0;
+        let offScreen = document.getElementById('numberOftabs');
+
+        window.electron.ipcRenderer.on('close-window', () => {
+            notificationsShown = true;
+            const confirmExit = window.confirm('Are you sure you want to exit the Exam?');
+            if (confirmExit) {
+                window.electron.ipcRenderer.send('exit-app');
+            }
+        });
+
+        window.electron.ipcRenderer.on('blur-app', () => {
+            if (!notificationsShown) {
+                startTimer();
+                notificationsShown = true;
+                off_screen_counter++;
+                modal.style.display = "block";
+                updateCounter();
+            }
+        });
+
+        function updateCounter() {
+            let minutes = Math.floor(time_counter / 60);
+            let seconds = time_counter % 60;
+            counterElement.textContent = `${padTime(minutes)}:${padTime(seconds)}`;
+            offScreen.textContent = off_screen_counter;
+            setTimeout(() => {
+                updateCounter();
+            }, 1000);
+            displayCheater();
         }
-        const basicTestCode = await response.text();
 
-        //console.log(testBCode);
-        // Set the content of the Ace editor to the fetched code
-        editor.setValue(basicTestCode);
-        // Move the cursor to the beginning of the document
-        editor.moveCursorToPosition({ row: 0, column: 0 });
-    } catch (error) {
-        console.error(error);
-        // Handle errors, such as displaying an error message to the user
-    }
+        window.electron.ipcRenderer.on('focus-app', () => {
+            stopTimer();
+            notificationsShown = false;
+            modal.style.display = "none";
+        });
+    });
 });
-
-const btnTestB = document.getElementById("btnTestB")
-btnTestB.addEventListener('click', async () => {
-    lastClick = "btnTestB";
-    try {
-        // Fetch the content of basic_test.cpp
-        const response = await fetch('../_tests/_test_files/testB.cpp');
-        if (!response.ok) {
-            throw new Error('Failed to fetch testB.cpp');
-        }
-        const testBCode = await response.text();
-
-        //console.log(testBCode);
-        // Set the content of the Ace editor to the fetched code
-        editor.setValue(testBCode);
-        // Move the cursor to the beginning of the document
-        editor.moveCursorToPosition({ row: 0, column: 0 });
-    } catch (error) {
-        console.error(error);
-        // Handle errors, such as displaying an error message to the user
-    }
-});
-
-const btnStudentFile = document.getElementById("btnStudentFile")
-btnStudentFile.addEventListener('click', async () => {
-    lastClick = "btnStudentFile";
-    try {
-        // Fetch the content of basic_test.cpp
-        const response = await fetch('../includes/poly/poly_student.cpp');
-        if (!response.ok) {
-            throw new Error('Failed to fetch poly_student.cpp');
-        }
-        const testBCode = await response.text();
-
-        //console.log(testBCode);
-        // Set the content of the Ace editor to the fetched code
-        editor.setValue(testBCode);
-        // Move the cursor to the beginning of the document
-        editor.moveCursorToPosition({ row: 0, column: 0 });
-    } catch (error) {
-        console.error(error);
-        // Handle errors, such as displaying an error message to the user
-    }
-});
-
-
-document.getElementById('saveTestB').addEventListener('click', () => {
-    
-    if(lastClick === 'btnTestB'){
-        const code = editor.getValue();
-    console.log('Save Test B Save Button Clicked');
-    ipcRenderer.send('save-test-B', code);
-    }
-    else{
-        alert('Please click testB.cpp before saving cpp file.')
-    }
-});
-
-ipcRenderer.on('save-testB-reply', (event, message) => {
-    console.log('Received save-code-reply:', message);
-    if (message === 'success') {
-        console.log('TestB code saved successfully');
-    } else {
-        console.error('Failed to save TestB code');
-    }
-});
-
-document.getElementById('saveStudentFile').addEventListener('click', () => {
-    
-    if(lastClick === 'btnStudentFile'){
-        const code = editor.getValue();
-    console.log('Save Student File Button Clicked');
-    ipcRenderer.send('save-student-file', code);
-    }
-    else{
-        alert('Please click your cpp file before saving.')
-    }
-});
-
-ipcRenderer.on('save-student-file-reply', (event, message) => {
-    console.log('Received save-code-reply:', message);
-    if (message === 'success') {
-        console.log('The student\'s code was saved successfully');
-    } else {
-        console.error('Failed to save the student\'s code');
-    }
-});
-
-
-
-const runBasicTest = document.getElementById("runBasicTest")
-runBasicTest.addEventListener('click', () => {
-
-    compileCpp("basic_test");
-});
-
-const runTestB = document.getElementById("runTestB")
-runTestB.addEventListener('click', () => {
-
-    compileCpp("testB");
-
-});
-
-const submitExam = document.getElementById("submitExam")
-submitExam.addEventListener('click', async () => {
-
-    let output = await compileCpp("testB");
-    console.log("Final output is ", output);
-
-    sendEmail(output);
-
-});
-
-const exitBtn = document.getElementById('exitBtn');
-
-exitBtn.addEventListener('click', () => {
-    // Send a message to the main process to request application closure
-    notificationsShown = true;
-    const confirmExit = window.confirm('Are you sure you want to exit the Exam?');
-
-    if(confirmExit)
-    {
-        ipcRenderer.send('exit-app');
-    }
-});
-
-let counterElement = document.getElementById('counter');
-let modal = document.getElementById('myModal');
-let off_screen_counter = 0;
-let offScreen= document.getElementById('numberOftabs');
-
-ipcRenderer.on('close-window', () => {
-    notificationsShown = true;
-    const confirmExit = window.confirm('Are you sure you want to exit the Exam?');
-
-    if(confirmExit)
-    {
-    ipcRenderer.send('exit-app');
-    }
-});
-
-ipcRenderer.on('blur-app', () => {
-
-    
-    if (!notificationsShown) {
-        startTimer();
-        notificationsShown = true; // Set the flag to true to indicate that the notification has been shown
-        off_screen_counter++;
-        modal.style.display = "block";
-        updateCounter();
-    }
-})
-
-function updateCounter() {
-    let minutes = Math.floor(time_counter / 60);
-    let seconds = time_counter % 60;
-    counterElement.textContent = `${padTime(minutes)}:${padTime(seconds)}`;
-    offScreen.textContent = off_screen_counter;
-        setTimeout(() => {
-            updateCounter();
-        }, 1000); // Update the counter every second
-    displayCheater();
-}
-ipcRenderer.on('focus-app', () => {
-    stopTimer();
-    notificationsShown = false;
-    modal.style.display = "none";
-})

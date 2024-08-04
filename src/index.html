@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>Grader of Dooms</title>
-
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -39,7 +38,7 @@
           </div>
 
           <div class="editor-container">
-            <div id="editor">// Your C++ program comes here</div>
+            <div id="editor"></div>
           </div>
 
           <div class="button-container">
@@ -52,20 +51,11 @@
             <button class="btn btn-warning" id="saveTestB">
               Save testB.cpp
             </button>
-
             <button class="btn btn-warning" id="runTestB">Run testB.cpp</button>
             <button class="btn btn-secondary" id="submitExam">
               Submit Exam
             </button>
-            <!-- <button class="btn btn-danger" id="submitBtn">Submit Code</button> -->
           </div>
-          <!-- <div class="timer-controls">
-            <label for="examTime">Set Exam Time (minutes):</label>
-            <input type="number" id="examTime" min="1" step="1" />
-            <button class="btn btn-primary" id="startTimerBtn">
-              Start Timer
-            </button>
-          </div> -->
         </div>
 
         <div class="output-container">
@@ -80,7 +70,6 @@
             >This guy is Cheating</span
           >
           <h2>Output:</h2>
-
           <p id="codeOutput"></p>
         </div>
 
@@ -95,9 +84,22 @@
         <p id="counter"></p>
       </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ace.js"></script>
     <script type="module" src="render.js"></script>
+    <!-- Monaco Editor Loader -->
+    <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+    <!-- <script src="codeEditor.js"></script> -->
+    <script>
+      require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
+      window.MonacoEnvironment = {
+        getWorkerUrl: function (workerId, label) {
+          return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+            self.MonacoEnvironment = {
+              baseUrl: '../node_modules/monaco-editor/min/'
+            };
+            importScripts('../node_modules/monaco-editor/min/vs/base/worker/workerMain.js');`)}`;
+        },
+      };
+    </script>
     <script src="timer.js"></script>
-    <!-- Adding timer JavaScript -->
   </body>
 </html>

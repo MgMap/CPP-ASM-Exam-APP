@@ -1,11 +1,10 @@
-const monaco = require('node_modules/monaco-editor/esm/vs/editor/editor.api.js');
-
-function initializeEditor(){
-    
-    monaco.editor.create(document.getElementById('container'), {
-    value: "#include <iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << \"Hello, world!\" << endl;\n\treturn 0;\n}",
-    language: 'cpp'
-  });
-}
-
-module.exports = {initializeEditor}
+require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
+      window.MonacoEnvironment = {
+        getWorkerUrl: function (workerId, label) {
+          return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+            self.MonacoEnvironment = {
+              baseUrl: '../node_modules/monaco-editor/min/'
+            };
+            importScripts('../node_modules/monaco-editor/min/vs/base/worker/workerMain.js');`)}`;
+        },
+      };
