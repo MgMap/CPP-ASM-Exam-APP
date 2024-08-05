@@ -20,7 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(error);
             }
         }
+        document.getElementById('btnCanvas').addEventListener('click', () => {
+            window.electron.ipcRenderer.send('show-canvas');
+            document.getElementById('canvasWindow').style.display = 'block';
+            document.getElementById('textEditorWindow').style.display = 'none';
+        });
 
+        document.getElementById('btnTextEditor').addEventListener('click', () => {
+            window.electron.ipcRenderer.send('show-text-editor');
+            document.getElementById('canvasWindow').style.display = 'none';
+            document.getElementById('textEditorWindow').style.display = 'block';
+        });
         fetchAndSetValue('../_tests/_tests/_test_files/basic_test.cpp');
 
         document.getElementById('btnBasicTest').addEventListener('click', () => {
@@ -72,23 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        document.getElementById('runBasicTest').addEventListener('click', () => {
-            import('./compile.js').then(module => {
-                module.compileCpp("basic_test");
-            });
+        document.getElementById('runBasicTest').addEventListener('click', async () => {
+            const output = await window.electron.compileCpp("basic_test");
+            document.getElementById('codeOutput').innerText = output;
         });
 
-        document.getElementById('runTestB').addEventListener('click', () => {
-            import('./compile.js').then(module => {
-                module.compileCpp("testB");
-            });
+        document.getElementById('runTestB').addEventListener('click', async () => {
+            const output = await window.electron.compileCpp("testB");
+            document.getElementById('codeOutput').innerText = output;
         });
 
         document.getElementById('submitExam').addEventListener('click', async () => {
-            const output = await import('./compile.js').then(module => module.compileCpp("testB"));
-            import('./reportScores.js').then(module => {
-                module.sendEmail(output);
-            });
+            const output = await window.electron.compileCpp("testB");
+            await window.electron.sendEmail(output);
         });
 
         document.getElementById('exitBtn').addEventListener('click', () => {

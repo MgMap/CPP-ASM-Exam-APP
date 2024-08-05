@@ -8,5 +8,8 @@ contextBridge.exposeInMainWorld('electron', {
         on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(event, ...args)),
         once: (channel, func) => ipcRenderer.once(channel, (event, ...args) => func(event, ...args)),
     },
-    compileCpp: (fileName) => ipcRenderer.invoke('compile-cpp', fileName)
+    compileCpp: (fileName) => ipcRenderer.invoke('compile-cpp', fileName),
+    sendEmail: async (submissionInfo) => {
+        return ipcRenderer.invoke('send-email', submissionInfo);
+    },
 });

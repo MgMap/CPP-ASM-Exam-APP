@@ -3,6 +3,10 @@ const path = require('node:path');
 const fs = require('fs');
 const cloneAllRepos = require('./fetchFiles');
 const { compileCpp } = require('./compile');
+const sendEmail = require('./reportScores');
+//const path = require('path');
+
+//const { compileCpp } = require('./compile');
 
 let mainWindow;
 let canvasView;
@@ -38,7 +42,13 @@ async function main() {
     app.quit();
   }
 }
-
+function createCanvasView() {
+  canvasView = new BrowserView();
+  canvasView.webContents.loadURL('https://canvas.pasadena.edu');
+  mainWindow.setBrowserView(canvasView);
+  canvasView.setBounds({ x: 32, y: 215, width: 0, height: 0 });
+  mainWindow.canvasView = canvasView;
+}
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1600,
@@ -65,19 +75,9 @@ function createWindow() {
   ipcMain.on('exit-app', () => mainWindow.destroy());
 
   ipcMain.on('save-test-B', (event, code) => saveFile(event, code, '../_tests/_tests/_test_files/testB.cpp', 'save-testB-reply'));
-  // NEEDS TO BE DYNAMIC
   ipcMain.on('save-student-file', (event, code) => saveFile(event, code, `../tests/includes/${process.env.STUDENT_SAVE_FILE}`, 'save-student-file-reply'));
 
-  // Open the DevTools.
   mainWindow.webContents.openDevTools();
-}
-
-function createCanvasView() {
-  canvasView = new BrowserView();
-  canvasView.webContents.loadURL('https://canvas.pasadena.edu');
-  mainWindow.setBrowserView(canvasView);
-  canvasView.setBounds({ x: 32, y: 215, width: 0, height: 0 });
-  mainWindow.canvasView = canvasView;
 }
 
 function showCanvas() {
@@ -115,7 +115,19 @@ function saveFile(event, code, filePath, replyChannel) {
     event.reply(replyChannel, 'success');
   });
 }
+ipcMain.handle('compile-cpp', async (event, fileName) => {
+  try {
+      const output = await compileCpp(fileName);
+      return output;
+  } catch (error) {
+      console.error(error);
+      return error.message;
+  }
+});
 
+ipcMain.handle('send-email', async (event, submissionInfo) => {
+  await sendEmail(submissionInfo);
+});
 
 // Call the main function to start the application
 main();

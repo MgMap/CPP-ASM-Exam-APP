@@ -1,7 +1,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-function compileCpp(fileName) {
+async function compileCpp(fileName) {
     const parentDir = path.resolve(__dirname, '..');
     let output = '';
 
@@ -11,7 +11,6 @@ function compileCpp(fileName) {
 
     function updateOutput(data) {
         output += data.toString();
-        document.getElementById('codeOutput').innerText = output;
     }
 
     function runCommand(command, args, cwd) {
@@ -38,23 +37,17 @@ function compileCpp(fileName) {
         });
     }
 
-    // IMPORTANT: for deployment and packaging, specify the complete path for cmake
-    return runCommand('cmake', ['-S', '.', '-B', 'build'], parentDir)
-        .then(() => {
-            clearOutput();
-            return runCommand('cmake', ['--build', path.resolve(parentDir, 'build')], parentDir);
-        })
-        .then(() => {
-            clearOutput();
-            return runCommand(path.join(path.resolve(parentDir, 'build'), 'bin', fileName), [], parentDir);
-        })
-        .then(() => {
-            return output;
-        })
-        .catch((error) => {
-            console.error(error);
-            return output;
-        });
+    try {
+        await runCommand('cmake', ['-S', '.', '-B', 'build'], parentDir);
+        clearOutput();
+        await runCommand('cmake', ['--build', path.resolve(parentDir, 'build')], parentDir);
+        clearOutput();
+        await runCommand(path.join(path.resolve(parentDir, 'build'), 'bin', fileName), [], parentDir);
+        return output;
+    } catch (error) {
+        console.error(error);
+        return output;
+    }
 }
 
 module.exports = { compileCpp };
