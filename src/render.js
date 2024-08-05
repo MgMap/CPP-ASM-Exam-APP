@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('btnStudentFile').addEventListener('click', () => {
             lastClick = "btnStudentFile";
-            fetchAndSetValue('.._tests/includes/array_functions/student.cpp');
+            fetchAndSetValue('../_tests/includes/array_functions/student.cpp');
+           
         });
 
         document.getElementById('saveTestB').addEventListener('click', async () => {
