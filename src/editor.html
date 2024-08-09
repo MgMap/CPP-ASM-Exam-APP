@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monaco Editor</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <h1>Test HTML Loaded</h1>
+    <div id="container"></div>
+    <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+    <script>
+      require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
+      console.log("Monaco Editor loaded successfully");
+      const container = document.getElementById("container");
+      try {
+        require(["vs/editor/editor.main"], function () {
+          console.log("Monaco loaded successfully");
+          const editor = monaco.editor.create(
+            document.getElementById("container"),
+            {
+              value:
+                '#include <iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, world!" << endl;\n\treturn 0;\n}',
+              language: "cpp",
+            }
+          );
+
+          editor.layout();
+          const { ipcRenderer } = require("electron");
+
+          ipcRenderer.on("set-value", (event, value) => {
+            editor.setValue(value);
+          });
+          ipcRenderer.send("please");
+          ipcRenderer.on("get-value", () => {
+            const value = editor.getValue();
+            ipcRenderer.send("editor-value", value);
+          });
+
+          ipcRenderer.on("fetch-file", (event, fileContent) => {
+            editor.setValue(fileContent);
+          });
+
+          ipcRenderer.on("compile-code", () => {
+            const code = editor.getValue();
+            ipcRenderer.send("compile-result", code);
+          });
+        });
+      } catch (error) {
+        console.error("Error loading Monaco Editor:", error);
+      }
+    </script>
+    <h1>Test HTML Loaded 2</h1>
+  </body>
+</html>
